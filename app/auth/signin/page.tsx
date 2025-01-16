@@ -6,11 +6,12 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import Input from "@/components/textInput";
 import SignUp from "../signup/page";
-// import { Router } from "next/router";
 import { useRouter } from "next/navigation";
+import Button from "@/components/button";
 
 const SignIn = () => {
-  const [toggle, setToggle] = useState(false);
+  const [toggle, setToggle] = useState(true);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleToggle = () => {
@@ -30,7 +31,9 @@ const SignIn = () => {
   });
 
   const handleSubmit = async (values: typeof initialValues) => {
+    setLoading(true);
     const result = await signIn("credentials", values);
+    setLoading(false);
     if (result?.error) {
       console.error("Sign-in failed:", result.error);
     } else {
@@ -78,12 +81,9 @@ const SignIn = () => {
                     </div>
                   )}
 
-                  <button
-                    type="submit"
-                    className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700"
-                  >
-                    Sign In
-                  </button>
+                  <Button type="submit" loading={loading}>
+                    Sign Up
+                  </Button>
                 </Form>
               )}
             </Formik>

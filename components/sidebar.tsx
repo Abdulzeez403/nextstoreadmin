@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,6 +12,7 @@ import {
   BarChart,
   Settings,
   Users,
+  Menu,
 } from "lucide-react";
 
 const sidebarItems = [
@@ -23,10 +25,44 @@ const sidebarItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false); // To manage sidebar toggle state
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleLinkClick = () => {
+    if (isOpen) {
+      setIsOpen(false); // Close sidebar when a link is clicked on mobile
+    }
+  };
 
   return (
-    <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
-      <div className="flex h-full flex-col ">
+    <div className="relative">
+      {/* Mobile Hamburger Menu */}
+      <div className="lg:hidden absolute top-4 left-4 z-50">
+        <Button variant="ghost" onClick={toggleSidebar}>
+          <Menu className="h-6 w-6" />
+        </Button>
+      </div>
+
+      {/* Overlay for mobile */}
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-gray-800/50 transition-opacity lg:hidden",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        onClick={toggleSidebar}
+      />
+
+      {/* Sidebar */}
+      <div
+        className={cn(
+          "fixed inset-0 top-0 left-0 z-50 flex flex-col bg-gray-100/40 dark:bg-gray-800/40 transition-all",
+          isOpen ? "translate-x-0" : "-translate-x-full", // For mobile
+          "lg:relative lg:translate-x-0 lg:w-64" // Fixed sidebar on larger screens
+        )}
+      >
         <div className="flex h-14 items-center border-b px-4">
           <Link className="flex items-center gap-2 font-semibold" href="/">
             <Package className="h-6 w-6" />
@@ -45,7 +81,7 @@ export default function Sidebar() {
                   pathname === item.href && "bg-green-200 dark:bg-gray-700"
                 )}
               >
-                <Link href={item.href}>
+                <Link href={item.href} onClick={handleLinkClick}>
                   <item.icon className="mr-2 h-4 w-4" />
                   {item.name}
                 </Link>

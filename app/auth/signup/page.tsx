@@ -1,30 +1,52 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Input from "@/components/textInput";
+import { useDispatch, useSelector } from "react-redux";
+import * as Yup from "yup";
+import { AppDispatch, RootState } from "@/lib/store";
+import { useRouter } from "next/navigation";
+import { register } from "@/lib/features/user/userThunk";
+import { Formik, Form } from "formik";
+import Button from "@/components/button";
 
 interface SignUpProps {
   handleToggle: (e: React.MouseEvent<HTMLSpanElement>) => void;
 }
 
 const SignUp: React.FC<SignUpProps> = ({ handleToggle }) => {
-  const [formData, setFormData] = useState({
-    username: "",
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+
+  const { loading, error } = useSelector((state: RootState) => state.user);
+
+  const initialValues = {
+    name: "",
     email: "",
     password: "",
     confirmPassword: "",
-  });
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Sign-Up Data:", formData);
+  const validationSchema = Yup.object({
+    name: Yup.string().required("Name is required"),
+    email: Yup.string()
+      .email("Invalid email format")
+      .required("Email is required"),
+    password: Yup.string()
+      .min(6, "Password must be at least 6 characters")
+      .required("Password is required"),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref("password")], "Passwords must match")
+      .required("Confirm Password is required"),
+  });
+
+  const handleSubmit = async (values: typeof initialValues) => {
+    try {
+      await dispatch(register(values)).unwrap();
+      router.push("/signin");
+    } catch (err) {
+      console.error("Error during registration:", err);
+    }
   };
 
   return (
@@ -33,50 +55,70 @@ const SignUp: React.FC<SignUpProps> = ({ handleToggle }) => {
         <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">
           Create an Account
         </h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Username"
-            name="username"
-            type="text"
-            placeholder="Enter your username"
-            value={formData.username}
-            onChange={handleChange}
-          />
-          <Input
-            label="Email Address"
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <Input
-            label="Confirm Password"
-            name="confirmPassword"
-            type="password"
-            placeholder="Re-enter your password"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-          />
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-300"
-          >
-            Sign Up
-          </button>
-        </form>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ values, errors, touched, handleChange, handleBlur }) => (
+            <Form className="space-y-4">
+              <Input
+                label="Name"
+                name="name"
+                type="text"
+                placeholder="Enter your name"
+                value={values.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.name && errors.name ? errors.name : ""}
+              />
+              <Input
+                label="Email Address"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                value={values.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.email && errors.email ? errors.email : ""}
+              />
+              <Input
+                label="Password"
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                value={values.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={
+                  touched.password && errors.password ? errors.password : ""
+                }
+              />
+              <Input
+                label="Confirm Password"
+                name="confirmPassword"
+                type="password"
+                placeholder="Re-enter your password"
+                value={values.confirmPassword}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={
+                  touched.confirmPassword && errors.confirmPassword
+                    ? errors.confirmPassword
+                    : ""
+                }
+              />
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              <Button type="submit" loading={loading}>
+                Sign Up
+              </Button>
+            </Form>
+          )}
+        </Formik>
         <p className="mt-4 text-sm text-center text-gray-600">
           Already have an account?{" "}
           <span
-            className="text-indigo-600 hover:underline"
+            className="text-indigo-600 hover:underline cursor-pointer"
             onClick={handleToggle}
           >
             Sign In

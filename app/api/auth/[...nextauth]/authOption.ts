@@ -1,4 +1,3 @@
-import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions = {
@@ -11,7 +10,7 @@ export const authOptions = {
       },
       async authorize(credentials) {
         const response = await fetch(
-          `${process.env.NEXTAUTH_API_UR}/api/auth/login`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -20,13 +19,14 @@ export const authOptions = {
         );
 
         const user = await response.json();
+        console.log(user, "the user");
 
         if (response.ok && user.token) {
           return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            token: user.token,
+            id: user?.id,
+            email: user?.email,
+            name: user?.name,
+            token: user?.token,
           };
         }
 

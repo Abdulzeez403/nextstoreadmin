@@ -5,7 +5,8 @@ import { Inter } from "next/font/google";
 import Header from "@/components/header";
 import { SessionProvider } from "next-auth/react";
 import SidebarNav from "@/components/sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,6 +16,19 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children, session }: RootLayoutProps) {
+  const { isLoading, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  // Wait for the session to be loaded
+  if (isLoading) {
+    return null; // You can show a loading spinner or other UI here if needed
+  }
+
+  // Redirect if the user is authenticated
+  if (isAuthenticated) {
+    router.push("/admin");
+  }
+
   return (
     <html lang="en">
       <SessionProvider session={session}>

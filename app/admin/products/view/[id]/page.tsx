@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ProductFormModal } from "@/components/product-form-modal";
+import { ProductFormModal } from "@/components/modal";
 import { toast } from "@/components/ui/use-toast";
 
 export default function ViewProductPage({
