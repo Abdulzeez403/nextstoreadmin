@@ -30,7 +30,7 @@ export const Files: React.FC<IProps> = ({ fileList, handleChange }) => {
   // Button component to trigger file upload
   const uploadButton = (
     <div className="flex gap-4 border-4 items-center px-4 py-2 my-2 rounded-md">
-      <Button type="default">Upload Image</Button>
+      <Button type="default">Add Product Image</Button>
     </div>
   );
 
@@ -48,8 +48,7 @@ export const Files: React.FC<IProps> = ({ fileList, handleChange }) => {
           showRemoveIcon: true,
         }}
       >
-        {fileList?.length >= 8 ? null : uploadButton}
-        {/* Limit the number of files uploaded */}
+        {fileList?.length >= 4 ? null : uploadButton}
       </Upload>
 
       {/* Modal for displaying image preview */}

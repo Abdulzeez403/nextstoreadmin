@@ -36,7 +36,7 @@ export const createProduct = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
   "products/update",
   async (
-    { productId, productData }: { productId: string; productData: IProduct },
+    { productId, productData }: { productId: any; productData: IProduct },
     { rejectWithValue }
   ) => {
     try {

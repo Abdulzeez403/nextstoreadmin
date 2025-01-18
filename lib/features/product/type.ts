@@ -9,6 +9,7 @@ export interface IProduct {
   images?: IImage[];
   rating?: number;
   numReviews?: number;
+  specifications?: ISpecification[];
 }
 
 export interface IImage {
@@ -16,4 +17,9 @@ export interface IImage {
   type: string;
   name: string;
   thumbUrl?: string;
+}
+
+export interface ISpecification {
+  key: string;
+  value: string;
 }

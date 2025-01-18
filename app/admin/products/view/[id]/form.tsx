@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form, FieldArray, FormikErrors } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
@@ -16,6 +16,7 @@ import * as Yup from "yup";
 import Input from "@/components/textInput";
 import { CirclePlus, CircleX } from "lucide-react";
 import Button from "@/components/button";
+import Upload from "antd/es/upload";
 
 interface ProductFormProps {
   product: IProduct | null;
@@ -23,7 +24,7 @@ interface ProductFormProps {
   onDismiss: () => void;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({
+const UpdateProductForm: React.FC<ProductFormProps> = ({
   product,
   selectedProductId,
   onDismiss,
@@ -31,12 +32,34 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const [files, setFiles] = useState<UploadFile<any>[]>([]);
   const { loading } = useSelector((state: RootState) => state.product);
+  const [removedImages, setRemovedImages] = useState<IImage[]>([]); // Track removed images
 
-  const handleProductImage = (e: UploadChangeParam<UploadFile<any>>) => {
-    setFiles(e.fileList);
-    console.log("Files Updated:", e.fileList);
+  useEffect(() => {
+    if (product?.images) {
+      const initialFiles = product.images.map((img) => ({
+        uid: img.url,
+        name: img.name,
+        url: img.url,
+        type: img.type,
+        status: "done",
+      })) as UploadFile<any>[];
+      setFiles(initialFiles);
+    }
+  }, [product]);
+
+  const handleRemove = (file: UploadFile<any>) => {
+    if (product?.images?.some((img) => img.url === file.url)) {
+      setRemovedImages((prev) => [
+        ...prev,
+        product?.images?.find((img) => img.url === file.url)!,
+      ]);
+    }
+    setFiles((prevFiles) => prevFiles.filter((f) => f.uid !== file.uid));
   };
 
+  const handleProductImageChange = (fileList: UploadFile<any>[]) => {
+    setFiles(fileList);
+  };
   const item = product;
 
   const validationSchema = Yup.object({
@@ -68,31 +91,57 @@ const ProductForm: React.FC<ProductFormProps> = ({
     specifications: item?.specifications || [{ key: "", value: "" }],
   };
 
-  const handleSubmit = async (values: IProduct) => {
-    try {
-      const productData = {
-        ...values,
-        images: files
-          ?.map((f: UploadFile<any>) => ({
-            url: f?.thumbUrl || "",
-            type: f?.type || "",
-            name: f?.name || "",
-          }))
-          .filter((file) => file.url),
-      };
+  // const handleSubmit = async (values: IProduct) => {
+  //   try {
+  //     const productData = {
+  //       ...values,
+  //       images: files
+  //         ?.map((f: UploadFile<any>) => ({
+  //           url: f?.thumbUrl || "",
+  //           type: f?.type || "",
+  //           name: f?.name || "",
+  //         }))
+  //         .filter((file) => file.url),
+  //     };
 
-      if (selectedProductId) {
-        await dispatch(
-          updateProduct({ productId: selectedProductId, productData })
-        );
-        console.log("Updating product...");
-      } else {
-        await dispatch(createProduct(productData));
-        onDismiss();
-        console.log("Product added successfully");
-      }
+  //     await dispatch(
+  //       updateProduct({ productId: selectedProductId, productData })
+  //     );
+  //     console.log("Updating product...");
+  //   } catch (error) {
+  //     console.error("Error adding or updating product:", error);
+  //   }
+  // };
+
+  const handleSubmit = async (values: IProduct) => {
+    const newImages = files
+      .filter((file) => !file.url)
+      .map((file) => ({
+        name: file.name,
+        type: file.type || "",
+        url: file.thumbUrl || "",
+      }));
+
+    const updatedProduct = {
+      ...values,
+      images: [
+        ...newImages,
+        ...(product?.images?.filter(
+          (img) => !removedImages.some((removed) => removed.url === img.url)
+        ) || []),
+      ],
+    };
+
+    try {
+      await dispatch(
+        updateProduct({
+          productId: selectedProductId,
+          productData: updatedProduct,
+        })
+      );
+      onDismiss();
     } catch (error) {
-      console.error("Error adding or updating product:", error);
+      console.error("Error updating product:", error);
     }
   };
 
@@ -168,6 +217,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               label="Description"
               name="description"
               type="textarea"
+              isTextarea={true}
               placeholder="Enter product description"
               value={values.description}
               onChange={handleChange}
@@ -252,26 +302,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </div>
               )}
             </FieldArray>
-
-            <div className="my-4">
-              <Files fileList={files} handleChange={handleProductImage} />
-            </div>
-
-            {item?.images && item.images.length > 0 && (
-              <div>
-                {item.images.map((img: IImage, index: number) => (
-                  <div key={index}>
-                    <Image
-                      src={img.url}
-                      width={100}
-                      height={40}
-                      alt="Product"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-
+            <Upload
+              fileList={files}
+              onChange={({ fileList }) => handleProductImageChange(fileList)}
+              onRemove={handleRemove}
+              listType="picture-card"
+            >
+              <Button>Upload</Button>
+            </Upload>
             <Button type="submit" loading={loading}>
               Submit
             </Button>
@@ -282,4 +320,4 @@ const ProductForm: React.FC<ProductFormProps> = ({
   );
 };
 
-export default ProductForm;
+export default UpdateProductForm;

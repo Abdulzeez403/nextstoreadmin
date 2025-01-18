@@ -51,7 +51,7 @@ const Input: React.FC<InputProps> = ({
           className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
             error ? "border-red-500" : "border-gray-300"
           }`}
-          rows={4}
+          rows={8}
         />
       ) : (
         <input

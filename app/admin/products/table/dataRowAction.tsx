@@ -37,7 +37,9 @@ const DataTableRowActions = <TData,>({
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => onView(row.original)}>
           <Link
-            href={`/admin/product/${(row.original as { _id: string })._id}`}
+            href={`/admin/products/view/${
+              (row.original as { _id: string })._id
+            }`}
           >
             View
           </Link>

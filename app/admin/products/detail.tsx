@@ -88,7 +88,11 @@ export const ProductDetail = () => {
         isOpen={isDrawerOpen}
         handleDrawerOpen={handleDrawerOpen}
       >
-        <ProductForm product={product} selectedProductId={selectedProductId} />
+        <ProductForm
+          product={product}
+          selectedProductId={selectedProductId}
+          onDismiss={handleClose}
+        />
       </TableComponent>
     </div>
   );
