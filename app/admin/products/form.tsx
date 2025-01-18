@@ -80,17 +80,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
           }))
           .filter((file) => file.url),
       };
-
-      if (selectedProductId) {
-        await dispatch(
-          updateProduct({ productId: selectedProductId, productData })
-        );
-        console.log("Updating product...");
-      } else {
         await dispatch(createProduct(productData));
         onDismiss();
         console.log("Product added successfully");
-      }
+      
     } catch (error) {
       console.error("Error adding or updating product:", error);
     }
@@ -168,6 +161,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               label="Description"
               name="description"
               type="textarea"
+              isTextarea={true}
               placeholder="Enter product description"
               value={values.description}
               onChange={handleChange}

@@ -13,14 +13,20 @@ import {
   Settings,
   Users,
   Menu,
+  CircleX,
+  MonitorCog,
+  Store
 } from "lucide-react";
+
 
 const sidebarItems = [
   { name: "Overview", href: "/admin", icon: LayoutDashboard },
   { name: "Products", href: "/admin/products", icon: Package },
+  { name: "Stores", href: "/admin/stores", icon: Store },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart },
+  { name: "Customers", href: "/admin/users", icon: Users },
   { name: "Settings", href: "/admin/settings", icon: Settings },
-  { name: "Users", href: "/admin/users", icon: Users },
+  { name: "Setups", href: "/admin/setup", icon: MonitorCog },
 ];
 
 export default function Sidebar() {
@@ -40,16 +46,16 @@ export default function Sidebar() {
   return (
     <div className="relative">
       {/* Mobile Hamburger Menu */}
-      <div className="lg:hidden absolute top-4 left-4 z-50">
-        <Button variant="ghost" onClick={toggleSidebar}>
-          <Menu className="h-6 w-6" />
-        </Button>
+      <div className="lg:hidden absolute top-4 left-4 z-50 ">
+       { isOpen ? null : (
+          <Menu className="h-6 w-6 " onClick={toggleSidebar} />
+        )}
       </div>
 
       {/* Overlay for mobile */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-gray-800/50 transition-opacity lg:hidden",
+          "fixed inset-0 z-40 bg-gray-200 transition-opacity lg:hidden",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         onClick={toggleSidebar}
@@ -58,16 +64,20 @@ export default function Sidebar() {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-0 top-0 left-0 z-50 flex flex-col bg-gray-100/40 dark:bg-gray-800/40 transition-all",
+          " h-screen fixed inset-0 top-0 left-0 z-50 flex flex-col bg-gray-100/40 dark:bg-gray-800/40 transition-all",
           isOpen ? "translate-x-0" : "-translate-x-full", // For mobile
           "lg:relative lg:translate-x-0 lg:w-64" // Fixed sidebar on larger screens
         )}
       >
-        <div className="flex h-14 items-center border-b px-4">
+        <div className="flex justify-between h-14 items-center border-b px-4">
           <Link className="flex items-center gap-2 font-semibold" href="/">
             <Package className="h-6 w-6" />
             <span>NextStore</span>
           </Link>
+<div className="flex md:hidden lg:hidden"> 
+            <CircleX   onClick={toggleSidebar}/>
+
+</div>
         </div>
         <ScrollArea className="flex-1">
           <nav className="flex flex-col gap-2 p-2 px-4">

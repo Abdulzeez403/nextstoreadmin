@@ -20,30 +20,8 @@ export default function Header() {
   const toggleSearch = () => setSearchVisible((prev) => !prev);
 
   return (
-    <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40">
-      {/* Search Section */}
-      {/* <div className="w-full flex-1">
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSearch}
-            aria-label="Toggle search"
-          >
-            <Search className="h-4 w-4" />
-          </Button>
-          {isSearchVisible && (
-            <form className="md:flex lg:flex">
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="w-full bg-white shadow-none appearance-none pl-8 md:w-2/3 lg:w-1/3 dark:bg-gray-950"
-              />
-            </form>
-          )}
-        </div>
-      </div> */}
-
+    <header className="flex justify-end h-14 lg:h-[60px] items-center gap-4 border-b bg-gray-100/40 px-6 dark:bg-gray-800/40">
+      <div>
       {/* Notifications Button */}
       <Button size="icon" variant="ghost" aria-label="Toggle notifications">
         <Bell className="h-4 w-4" />
@@ -83,6 +61,8 @@ export default function Header() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
+
     </header>
   );
 }

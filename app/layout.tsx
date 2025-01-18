@@ -19,7 +19,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <SessionProvider>
         <Provider store={store}>
           <body className={inter.className}>
-            <div className="flex h-screen overflow-hidden">
+            <div className="">
               <main className="flex-1 overflow-y-auto p-4">{children}</main>
             </div>
           </body>
