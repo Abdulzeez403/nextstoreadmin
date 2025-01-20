@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { register } from "@/lib/features/user/userThunk";
 import { Formik, Form } from "formik";
 import Button from "@/components/button";
+import { toast } from "@/hooks/use-toast";
 
 interface SignUpProps {
   handleToggle: (e: React.MouseEvent<HTMLSpanElement>) => void;
@@ -18,7 +19,9 @@ const SignUp: React.FC<SignUpProps> = ({ handleToggle }) => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
-  const { loading, error } = useSelector((state: RootState) => state.user);
+  const { loading, error, message } = useSelector(
+    (state: RootState) => state.user
+  );
 
   const initialValues = {
     name: "",
@@ -44,13 +47,16 @@ const SignUp: React.FC<SignUpProps> = ({ handleToggle }) => {
     try {
       await dispatch(register(values)).unwrap();
       router.push("/signin");
+      toast({ title: message || "Sign up successful" });
     } catch (err) {
+      toast({ title: error || "invalid credential" });
+
       console.error("Error during registration:", err);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen  ">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-4 text-center text-gray-800">
           Create an Account

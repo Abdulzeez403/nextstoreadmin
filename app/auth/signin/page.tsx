@@ -8,11 +8,13 @@ import Input from "@/components/textInput";
 import SignUp from "../signup/page";
 import { useRouter } from "next/navigation";
 import Button from "@/components/button";
+import { toast, useToast } from "@/hooks/use-toast";
 
 const SignIn = () => {
   const [toggle, setToggle] = useState(true);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleToggle = () => {
     setToggle(!toggle);
@@ -45,9 +47,9 @@ const SignIn = () => {
   return (
     <>
       {toggle ? (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50">
-          <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-            <h1 className="text-2xl font-bold mb-6">Sign In</h1>
+        <div className="flex items-center justify-center  min-h-screen  ">
+          <div className="p-6 rounded-lg shadow-md w-screen md:max-w-md lg:max-w-md bg-white">
+            <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
             <Formik
               initialValues={initialValues}
               validationSchema={validationSchema}

@@ -8,6 +8,7 @@ interface AuthState {
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
   loading: boolean;
+  message: string | null;
 }
 
 const initialState: AuthState = {
@@ -15,6 +16,7 @@ const initialState: AuthState = {
   status: "idle",
   error: null,
   loading: false,
+  message: null,
 };
 
 // Auth slice
@@ -31,8 +33,8 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action: PayloadAction<User>) => {
         state.loading = false;
-
         state.user = action.payload;
+        state.message = action.payload.message || "Sign up successful";
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
