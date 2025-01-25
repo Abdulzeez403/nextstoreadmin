@@ -5,18 +5,12 @@ export interface IProduct {
   price: number;
   category: string;
   tag: string;
+  swapping?: boolean;
   stock: number;
-  images?: IImage[];
+  images?: string[];
   rating?: number;
   numReviews?: number;
   specifications?: ISpecification[];
-}
-
-export interface IImage {
-  url: string;
-  type: string;
-  name: string;
-  thumbUrl?: string;
 }
 
 export interface ISpecification {

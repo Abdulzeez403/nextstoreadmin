@@ -21,12 +21,12 @@ export const authOptions = {
         const user = await response.json();
         console.log(user, "the user");
 
-        if (response.ok && user.token) {
+        if (response.ok) {
           return {
             id: user?.id,
             email: user?.email,
             name: user?.name,
-            token: user?.token,
+            // token: user?.token,
           };
         }
 

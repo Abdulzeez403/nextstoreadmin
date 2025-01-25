@@ -55,7 +55,7 @@ export default function ViewProductPage({
       <div className="flex flex-col md:flex-row gap-4 items-center">
         <div className="flex-1">
           <Image
-            src={product?.images?.[0].url || "/placeholder.png"}
+            src={product?.images?.[0] || "/placeholder.png"}
             alt={product?.name || "Product Image"}
             width={400}
             height={400}

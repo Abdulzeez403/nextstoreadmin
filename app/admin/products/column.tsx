@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import DataTableRowActions from "./table/dataRowAction";
-import { IImage, IProduct } from "@/lib/features/product/type";
+import { IProduct } from "@/lib/features/product/type";
 import { DataTableColumnHeader } from "@/components/table/colunm";
 
 interface IProps {
@@ -26,7 +26,7 @@ export const columns = ({
 
       // If images are objects with 'uri' property, map over to extract the URI
       const imageUrls =
-        images && images.length > 0 && images[0].url ? [images[0].url] : [];
+        images && images.length > 0 && images[0] ? [images[0]] : [];
 
       // If images array is empty or not valid, show fallback message
       if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
@@ -47,7 +47,7 @@ export const columns = ({
         <div className="flex space-x-2">
           <Image
             src={imageUrl}
-            alt={`Product image for ${row.original.name}`}
+            alt={`Product image for ${row.original}`}
             width={50}
             height={50}
             className="rounded object-cover" // Ensure image fits well

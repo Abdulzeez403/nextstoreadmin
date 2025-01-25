@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Button, Modal, Upload } from "antd";
 import Image from "next/image";
 import { UploadChangeParam, UploadFile } from "antd/es/upload/interface"; // Import the type for file list
-import { IImage } from "@/lib/features/product/type";
 
 interface IProps {
   fileList: UploadFile<any>[]; // Ensure the fileList is typed correctly as per UploadFile

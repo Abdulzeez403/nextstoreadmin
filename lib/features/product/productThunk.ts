@@ -22,9 +22,13 @@ export const fetchProductById = createAsyncThunk(
 // Create a new product
 export const createProduct = createAsyncThunk(
   "products/create",
-  async (productData: IProduct, { rejectWithValue }) => {
+  async (productData: FormData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(API_URL, productData);
+      const response = await axios.post(API_URL, productData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data; // Return the newly created product data
     } catch (error) {
       return rejectWithValue(error); // Pass error to the slice
@@ -36,11 +40,15 @@ export const createProduct = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
   "products/update",
   async (
-    { productId, productData }: { productId: any; productData: IProduct },
+    { productId, productData }: { productId: any; productData: FormData },
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.put(`${API_URL}/${productId}`, productData);
+      const response = await axios.put(`${API_URL}/${productId}`, productData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data.product; // Return the updated product data
     } catch (error: any) {
       // Handle the error by passing a structured error message

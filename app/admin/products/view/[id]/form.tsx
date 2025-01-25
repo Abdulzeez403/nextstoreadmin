@@ -8,7 +8,7 @@ import {
   createProduct,
   updateProduct,
 } from "@/lib/features/product/productThunk";
-import { IImage, IProduct } from "@/lib/features/product/type";
+import { IProduct, ISpecification } from "@/lib/features/product/type";
 import { AppDispatch, RootState } from "@/lib/store";
 import { Files } from "@/components/inputs/uploadFile";
 import { UploadChangeParam, UploadFile } from "antd/es/upload/interface";
@@ -30,36 +30,9 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
   onDismiss,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [files, setFiles] = useState<UploadFile<any>[]>([]);
   const { loading } = useSelector((state: RootState) => state.product);
-  const [removedImages, setRemovedImages] = useState<IImage[]>([]); // Track removed images
+  const [newImages, setNewImages] = useState<File[]>([]);
 
-  useEffect(() => {
-    if (product?.images) {
-      const initialFiles = product.images.map((img) => ({
-        uid: img.url,
-        name: img.name,
-        url: img.url,
-        type: img.type,
-        status: "done",
-      })) as UploadFile<any>[];
-      setFiles(initialFiles);
-    }
-  }, [product]);
-
-  const handleRemove = (file: UploadFile<any>) => {
-    if (product?.images?.some((img) => img.url === file.url)) {
-      setRemovedImages((prev) => [
-        ...prev,
-        product?.images?.find((img) => img.url === file.url)!,
-      ]);
-    }
-    setFiles((prevFiles) => prevFiles.filter((f) => f.uid !== file.uid));
-  };
-
-  const handleProductImageChange = (fileList: UploadFile<any>[]) => {
-    setFiles(fileList);
-  };
   const item = product;
 
   const validationSchema = Yup.object({
@@ -82,13 +55,15 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
   });
 
   const initialValues = {
-    name: item?.name || "",
-    description: item?.description || "",
-    price: item?.price || 0,
-    category: item?.category || "",
-    tag: item?.tag || "",
-    stock: item?.stock || 0,
-    specifications: item?.specifications || [{ key: "", value: "" }],
+    name: product?.name || "",
+    description: product?.description || "",
+    price: product?.price || 0,
+    category: product?.category || "",
+    tag: product?.tag || "",
+    stock: product?.stock || 0,
+    swapping: product?.swapping || false,
+    specifications: product?.specifications || [{ key: "", value: "" }],
+    images: product?.images || [],
   };
 
   // const handleSubmit = async (values: IProduct) => {
@@ -113,35 +88,38 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
   //   }
   // };
 
-  const handleSubmit = async (values: IProduct) => {
-    const newImages = files
-      .filter((file) => !file.url)
-      .map((file) => ({
-        name: file.name,
-        type: file.type || "",
-        url: file.thumbUrl || "",
-      }));
+  const handleSubmit = async (
+    values: typeof initialValues,
+    { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+  ) => {
+    const formData = new FormData();
+    // Prepare form data
+    Object.entries(values).forEach(([key, value]) => {
+      if (key === "specifications" && Array.isArray(value)) {
+        (value as ISpecification[]).forEach((spec: ISpecification) => {
+          formData.append(`${key}[]`, JSON.stringify(spec));
+        });
+      } else if (key === "swapping") {
+        formData.append(key, value ? "true" : "false");
+      } else if (key !== "images") {
+        formData.append(key, value?.toString() || "");
+      }
+    });
 
-    const updatedProduct = {
-      ...values,
-      images: [
-        ...newImages,
-        ...(product?.images?.filter(
-          (img) => !removedImages.some((removed) => removed.url === img.url)
-        ) || []),
-      ],
-    };
+    newImages.forEach((file) => {
+      formData.append("images", file);
+    });
 
     try {
       await dispatch(
         updateProduct({
           productId: selectedProductId,
-          productData: updatedProduct,
-        })
+          productData: formData,
+        } as any)
       );
       onDismiss();
     } catch (error) {
-      console.error("Error updating product:", error);
+      console.error("Error submitting form:", error);
     }
   };
 
@@ -302,14 +280,44 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
                 </div>
               )}
             </FieldArray>
-            <Upload
-              fileList={files}
-              onChange={({ fileList }) => handleProductImageChange(fileList)}
-              onRemove={handleRemove}
-              listType="picture-card"
-            >
-              <Button>Upload</Button>
-            </Upload>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Images
+              </label>
+              <input
+                type="file"
+                onChange={(event) => {
+                  const files = event.currentTarget.files;
+                  if (files) {
+                    setNewImages(Array.from(files));
+                  }
+                }}
+                multiple
+                accept="image/*"
+                className="mt-1 block w-full"
+              />
+              {values.images && values.images.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm font-medium text-gray-700">
+                    Current Images:
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {values.images.map((image: string, index: number) => (
+                      <Image
+                        key={index}
+                        src={image || "/placeholder.svg"}
+                        alt={image}
+                        width={100}
+                        height={100}
+                        className="object-cover rounded"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <Button type="submit" loading={loading}>
               Submit
             </Button>

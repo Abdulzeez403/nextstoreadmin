@@ -4,103 +4,104 @@ import React, { useState } from "react";
 import { Formik, Form, FieldArray, FormikErrors } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
-import {
-  createProduct,
-  updateProduct,
-} from "@/lib/features/product/productThunk";
-import { IImage, IProduct } from "@/lib/features/product/type";
-import { AppDispatch, RootState } from "@/lib/store";
-import { Files } from "@/components/inputs/uploadFile";
-import { UploadChangeParam, UploadFile } from "antd/es/upload/interface";
+
 import * as Yup from "yup";
-import Input from "@/components/textInput";
 import { CirclePlus, CircleX } from "lucide-react";
+import { createProduct } from "@/lib/features/product/productThunk";
+import { AppDispatch, RootState } from "@/lib/store";
+import { IProduct, ISpecification } from "@/lib/features/product/type";
+import Input from "@/components/textInput";
 import Button from "@/components/button";
 
-interface ProductFormProps {
+interface ProductModalProps {
   product: IProduct | null;
-  selectedProductId: string | null;
+  // productId: string | null;
   onDismiss: () => void;
 }
+const validationSchema = Yup.object({
+  name: Yup.string().required("Product name is required"),
+  description: Yup.string().required("Description is required"),
+  price: Yup.number()
+    .required("Price is required")
+    .min(0, "Price must be a positive value"),
+  category: Yup.string().required("Category is required"),
+  tag: Yup.string().required("Tag is required"),
+  stock: Yup.number()
+    .required("Stock quantity is required")
+    .min(0, "Stock must be a positive value"),
+  specifications: Yup.array().of(
+    Yup.object().shape({
+      key: Yup.string().required("Specification key is required"),
+      value: Yup.string().required("Specification value is required"),
+    })
+  ),
+});
 
-const ProductForm: React.FC<ProductFormProps> = ({
-  product,
-  selectedProductId,
-  onDismiss,
-}) => {
+const ProductForm = ({ product, onDismiss }: ProductModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [files, setFiles] = useState<UploadFile<any>[]>([]);
   const { loading } = useSelector((state: RootState) => state.product);
-
-  const handleProductImage = (e: UploadChangeParam<UploadFile<any>>) => {
-    setFiles(e.fileList);
-    console.log("Files Updated:", e.fileList);
-  };
-
-  const item = product;
-
-  const validationSchema = Yup.object({
-    name: Yup.string().required("Product name is required"),
-    description: Yup.string().required("Description is required"),
-    price: Yup.number()
-      .required("Price is required")
-      .min(0, "Price must be a positive value"),
-    category: Yup.string().required("Category is required"),
-    tag: Yup.string().required("Tag is required"),
-    stock: Yup.number()
-      .required("Stock quantity is required")
-      .min(0, "Stock must be a positive value"),
-    specifications: Yup.array().of(
-      Yup.object().shape({
-        key: Yup.string().required("Specification key is required"),
-        value: Yup.string().required("Specification value is required"),
-      })
-    ),
-  });
+  const [newImages, setNewImages] = useState<File[]>([]);
 
   const initialValues = {
-    name: item?.name || "",
-    description: item?.description || "",
-    price: item?.price || 0,
-    category: item?.category || "",
-    tag: item?.tag || "",
-    stock: item?.stock || 0,
-    specifications: item?.specifications || [{ key: "", value: "" }],
+    name: product?.name || "",
+    description: product?.description || "",
+    price: product?.price || 0,
+    category: product?.category || "",
+    tag: product?.tag || "",
+    stock: product?.stock || 0,
+    swapping: product?.swapping || false,
+    specifications: product?.specifications || [{ key: "", value: "" }],
+    images: product?.images || [],
   };
 
-  const handleSubmit = async (values: IProduct) => {
+  const handleSubmit = async (
+    values: typeof initialValues,
+    { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+  ) => {
+    const formData = new FormData();
+    // Prepare form data
+    Object.entries(values).forEach(([key, value]) => {
+      if (key === "specifications" && Array.isArray(value)) {
+        (value as ISpecification[]).forEach((spec: ISpecification) => {
+          formData.append(`${key}[]`, JSON.stringify(spec));
+        });
+      } else if (key === "swapping") {
+        formData.append(key, value ? "true" : "false");
+      } else if (key !== "images") {
+        formData.append(key, value?.toString() || "");
+      }
+    });
+
+    newImages.forEach((file) => {
+      formData.append("images", file);
+    });
+
     try {
-      const productData = {
-        ...values,
-        images: files
-          ?.map((f: UploadFile<any>) => ({
-            url: f?.thumbUrl || "",
-            type: f?.type || "",
-            name: f?.name || "",
-          }))
-          .filter((file) => file.url),
-      };
-        await dispatch(createProduct(productData));
-        onDismiss();
-        console.log("Product added successfully");
-      
+      await dispatch(createProduct(formData));
+      onDismiss();
     } catch (error) {
-      console.error("Error adding or updating product:", error);
+      console.error("Error submitting form:", error);
     }
   };
 
   return (
     <div className="">
-      <h1 className="text-2xl font-bold text-gray-800">
-        {selectedProductId ? "Edit Product" : "Add Product"}
-      </h1>
+      <h2 className="text-2xl font-bold mb-4">
+        {product ? "Edit Product" : "Add Product"}
+      </h2>
       <Formik
-        key={selectedProductId}
         initialValues={initialValues}
-        onSubmit={handleSubmit}
         validationSchema={validationSchema}
+        onSubmit={handleSubmit}
       >
-        {({ values, handleChange, handleBlur, touched, errors }) => (
+        {({
+          values,
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          isSubmitting,
+        }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Input
@@ -172,7 +173,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   : ""
               }
             />
-
             <FieldArray name="specifications">
               {({ push, remove }) => (
                 <div>
@@ -247,24 +247,42 @@ const ProductForm: React.FC<ProductFormProps> = ({
               )}
             </FieldArray>
 
-            <div className="my-4">
-              <Files fileList={files} handleChange={handleProductImage} />
-            </div>
-
-            {item?.images && item.images.length > 0 && (
-              <div>
-                {item.images.map((img: IImage, index: number) => (
-                  <div key={index}>
-                    <Image
-                      src={img.url}
-                      width={100}
-                      height={40}
-                      alt="Product"
-                    />
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Images
+              </label>
+              <input
+                type="file"
+                onChange={(event) => {
+                  const files = event.currentTarget.files;
+                  if (files) {
+                    setNewImages(Array.from(files));
+                  }
+                }}
+                multiple
+                accept="image/*"
+                className="mt-1 block w-full"
+              />
+              {values.images && values.images.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-sm font-medium text-gray-700">
+                    Current Images:
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {values.images.map((image: string, index: number) => (
+                      <Image
+                        key={index}
+                        src={image || "/placeholder.svg"}
+                        alt={image}
+                        width={100}
+                        height={100}
+                        className="object-cover rounded"
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
 
             <Button type="submit" loading={loading}>
               Submit

@@ -90,7 +90,7 @@ export const ProductDetail = () => {
       >
         <ProductForm
           product={product}
-          selectedProductId={selectedProductId}
+          // selectedProductId={selectedProductId}
           onDismiss={handleClose}
         />
       </TableComponent>
