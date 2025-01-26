@@ -12,6 +12,7 @@ import { AppDispatch, RootState } from "@/lib/store";
 import { IProduct, ISpecification } from "@/lib/features/product/type";
 import Input from "@/components/textInput";
 import Button from "@/components/button";
+import { notify } from "@/components/toast";
 
 interface ProductModalProps {
   product: IProduct | null;
@@ -43,15 +44,15 @@ const ProductForm = ({ product, onDismiss }: ProductModalProps) => {
   const [newImages, setNewImages] = useState<File[]>([]);
 
   const initialValues = {
-    name: product?.name || "",
-    description: product?.description || "",
-    price: product?.price || 0,
-    category: product?.category || "",
-    tag: product?.tag || "",
-    stock: product?.stock || 0,
-    swapping: product?.swapping || false,
-    specifications: product?.specifications || [{ key: "", value: "" }],
-    images: product?.images || [],
+    name: "",
+    description: "",
+    price: 0,
+    category: "",
+    tag: "",
+    stock: 0,
+    swapping: false,
+    specifications: [{ key: "", value: "" }],
+    images: [],
   };
 
   const handleSubmit = async (
@@ -78,17 +79,17 @@ const ProductForm = ({ product, onDismiss }: ProductModalProps) => {
 
     try {
       await dispatch(createProduct(formData));
+      notify.success("Product created successfully");
       onDismiss();
     } catch (error) {
       console.error("Error submitting form:", error);
+      notify.error("Failed to create product");
     }
   };
 
   return (
     <div className="">
-      <h2 className="text-2xl font-bold mb-4">
-        {product ? "Edit Product" : "Add Product"}
-      </h2>
+      <h2 className="text-2xl font-bold mb-4">"Add Product"</h2>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}

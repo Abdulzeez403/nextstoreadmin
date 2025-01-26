@@ -64,13 +64,13 @@ export const columns = ({
     ),
     cell: ({ row }) => <div>{row.original.name}</div>,
   },
-  {
-    accessorKey: "description",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Description" />
-    ),
-    cell: ({ row }) => <div>{row.original.description}</div>,
-  },
+  // {
+  //   accessorKey: "description",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Description" />
+  //   ),
+  //   cell: ({ row }) => <div>{row.original.description}</div>,
+  // },
   {
     accessorKey: "price",
     header: ({ column }) => (

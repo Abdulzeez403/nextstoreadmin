@@ -4,19 +4,14 @@ import React, { useEffect, useState } from "react";
 import { Formik, Form, FieldArray, FormikErrors } from "formik";
 import { useDispatch, useSelector } from "react-redux";
 import Image from "next/image";
-import {
-  createProduct,
-  updateProduct,
-} from "@/lib/features/product/productThunk";
+import { updateProduct } from "@/lib/features/product/productThunk";
 import { IProduct, ISpecification } from "@/lib/features/product/type";
 import { AppDispatch, RootState } from "@/lib/store";
-import { Files } from "@/components/inputs/uploadFile";
-import { UploadChangeParam, UploadFile } from "antd/es/upload/interface";
 import * as Yup from "yup";
 import Input from "@/components/textInput";
-import { CirclePlus, CircleX } from "lucide-react";
+import { CirclePlus, CircleX, Trash } from "lucide-react";
 import Button from "@/components/button";
-import Upload from "antd/es/upload";
+import { notify } from "@/components/toast";
 
 interface ProductFormProps {
   product: IProduct | null;
@@ -66,33 +61,18 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
     images: product?.images || [],
   };
 
-  // const handleSubmit = async (values: IProduct) => {
-  //   try {
-  //     const productData = {
-  //       ...values,
-  //       images: files
-  //         ?.map((f: UploadFile<any>) => ({
-  //           url: f?.thumbUrl || "",
-  //           type: f?.type || "",
-  //           name: f?.name || "",
-  //         }))
-  //         .filter((file) => file.url),
-  //     };
-
-  //     await dispatch(
-  //       updateProduct({ productId: selectedProductId, productData })
-  //     );
-  //     console.log("Updating product...");
-  //   } catch (error) {
-  //     console.error("Error adding or updating product:", error);
-  //   }
-  // };
-
   const handleSubmit = async (
     values: typeof initialValues,
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
   ) => {
     const formData = new FormData();
+
+    // Merge new images with existing ones
+    const mergedImages = [
+      ...(values.images as string[]), // Existing images
+      ...newImages.map((file) => file.name), // New images
+    ];
+
     // Prepare form data
     Object.entries(values).forEach(([key, value]) => {
       if (key === "specifications" && Array.isArray(value)) {
@@ -106,9 +86,13 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
       }
     });
 
+    // Add new images to FormData
     newImages.forEach((file) => {
       formData.append("images", file);
     });
+
+    // Append the merged image names (optional, depending on your backend logic)
+    // formData.append("mergedImages", JSON.stringify(mergedImages));
 
     try {
       await dispatch(
@@ -117,9 +101,12 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
           productData: formData,
         } as any)
       );
+      notify.success("Product updated successfully");
+
       onDismiss();
     } catch (error) {
       console.error("Error submitting form:", error);
+      notify.error("Failed to update product");
     }
   };
 
@@ -134,7 +121,14 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
       >
-        {({ values, handleChange, handleBlur, touched, errors }) => (
+        {({
+          values,
+          handleChange,
+          handleBlur,
+          touched,
+          errors,
+          setFieldValue,
+        }) => (
           <Form className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <Input
@@ -290,7 +284,14 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
                 onChange={(event) => {
                   const files = event.currentTarget.files;
                   if (files) {
-                    setNewImages(Array.from(files));
+                    // Append new files to the existing list
+                    setNewImages((prev) => [...prev, ...Array.from(files)]);
+                    setFieldValue("images", [
+                      ...values.images,
+                      ...Array.from(files).map((file) =>
+                        URL.createObjectURL(file)
+                      ),
+                    ]);
                   }
                 }}
                 multiple
@@ -304,14 +305,37 @@ const UpdateProductForm: React.FC<ProductFormProps> = ({
                   </p>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {values.images.map((image: string, index: number) => (
-                      <Image
-                        key={index}
-                        src={image || "/placeholder.svg"}
-                        alt={image}
-                        width={100}
-                        height={100}
-                        className="object-cover rounded"
-                      />
+                      <div key={index} className="relative">
+                        <Image
+                          src={image || "/placeholder.svg"}
+                          alt={`Image ${index + 1}`}
+                          width={100}
+                          height={100}
+                          className="object-cover rounded"
+                        />
+                        <button
+                          type="button"
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                          onClick={() => {
+                            const updatedImages = values.images.filter(
+                              (_, i) => i !== index
+                            );
+                            setFieldValue("images", updatedImages);
+
+                            // Remove corresponding new file if it exists
+                            if (index >= (product?.images?.length ?? 0)) {
+                              setNewImages((prev) =>
+                                prev.filter(
+                                  (_, i) =>
+                                    i !== index - (product?.images?.length || 0)
+                                )
+                              );
+                            }
+                          }}
+                        >
+                          <Trash size={16} />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>

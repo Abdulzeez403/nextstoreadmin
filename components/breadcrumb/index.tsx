@@ -15,7 +15,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
     <nav className="flex" aria-label="Breadcrumb">
       <ol className="flex items-center space-x-2">
         <li>
-          <Link href="/" className="text-gray-500 hover:text-gray-700">
+          <Link href="/admin" className="text-gray-500 hover:text-gray-700">
             Home
           </Link>
         </li>

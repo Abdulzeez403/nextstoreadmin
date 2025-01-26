@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Breadcrumb } from "@/components/breadcrumb";
 import Drawer from "@/components/modals/drawer";
 import UpdateProductForm from "./form";
+import { Edit2Icon, Trash } from "lucide-react";
 
 export default function ViewProductPage({
   params,
@@ -30,7 +31,7 @@ export default function ViewProductPage({
   }
 
   return (
-    <div>
+    <div className="overflow-y-scroll">
       <h1 className="text-2xl font-bold">Product Details</h1>
 
       <div className="flex justify-between items-center">
@@ -45,10 +46,10 @@ export default function ViewProductPage({
             className="border-2 bg-blue-600 p-2 px-4 text-white"
             onClick={() => setIsOpen(true)}
           >
-            Update
+            <Edit2Icon />
           </button>
           <button className="border-2 rounded-md bg-red-300 p-2 px-4 text-white">
-            Delete
+            <Trash />
           </button>
         </div>
       </div>
@@ -61,9 +62,9 @@ export default function ViewProductPage({
             height={400}
           />
         </div>
+
         <div className="flex-1">
-          <h2 className="text-xl font-semibold">{product.name}</h2>
-          <p className="text-gray-500">{product.description}</p>
+          <h2 className="text-xl font-semibold pb-4">{product.name}</h2>
           <p className="text-gray-500">Price: {product.price}</p>
           <p className="text-gray-500">Category: {product.category}</p>
           <p className="text-gray-500">Stock: {product.stock}</p>
@@ -75,8 +76,10 @@ export default function ViewProductPage({
               </div>
             ))}
           </p>
+          <p className="text-gray-500 text-ms">{product.description}</p>
         </div>
       </div>
+
       <Drawer width="100" isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <UpdateProductForm
           selectedProductId={params?.id}

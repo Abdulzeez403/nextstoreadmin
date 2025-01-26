@@ -9,6 +9,7 @@ import SignUp from "../signup/page";
 import { useRouter } from "next/navigation";
 import Button from "@/components/button";
 import { toast, useToast } from "@/hooks/use-toast";
+import { notify } from "@/components/toast";
 
 const SignIn = () => {
   const [toggle, setToggle] = useState(true);
@@ -38,8 +39,10 @@ const SignIn = () => {
     setLoading(false);
     if (result?.error) {
       console.error("Sign-in failed:", result.error);
+      notify.error(`Sign-in failed: ${result.error}`);
     } else {
       console.log("Sign-in successful!");
+      notify.success("Sign-in successful!");
       router.push("/admin");
     }
   };

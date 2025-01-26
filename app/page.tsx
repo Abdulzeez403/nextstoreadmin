@@ -10,17 +10,10 @@ export default function AuthPage() {
   const { isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // Wait for the session to be loaded
-  if (isLoading) {
-    return <h2>Loading...</h2>;
-  }
-
-  // Redirect if the user is authenticated
   if (isAuthenticated) {
     router.push("/admin");
   }
 
-  // console.log(session);
   return (
     <div className="flex-1 space-y-4">
       <SignIn />
