@@ -44,9 +44,9 @@ const DataTableRowActions = <TData,>({
             View
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onEdit(row.original)}>
+        {/* <DropdownMenuItem onClick={() => onEdit(row.original)}>
           Edit
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => onDelete(row.original)}>
           Delete

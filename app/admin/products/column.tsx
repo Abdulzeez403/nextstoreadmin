@@ -62,15 +62,21 @@ export const columns = ({
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Product Name" />
     ),
-    cell: ({ row }) => <div>{row.original.name}</div>,
+    cell: ({ row }) => (
+      <div>
+        {row.original.name.length > 20
+          ? `${row.original.name.slice(0, 20)}...`
+          : row.original.name}
+      </div>
+    ),
   },
-  // {
-  //   accessorKey: "description",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="Description" />
-  //   ),
-  //   cell: ({ row }) => <div>{row.original.description}</div>,
-  // },
+  {
+    accessorKey: "category",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="category" />
+    ),
+    cell: ({ row }) => <div>{row.original.category}</div>,
+  },
   {
     accessorKey: "price",
     header: ({ column }) => (

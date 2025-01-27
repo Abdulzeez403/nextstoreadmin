@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Overview } from "@/components/overview";
-import { RecentSales } from "@/components/recent-sales";
+import { RecentStores } from "@/components/recent-sales";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { WidgetCards } from "@/components/widgetcards";
 
@@ -18,7 +18,7 @@ interface CardData {
 const DashboardPage = () => {
   const cardData: CardData[] = [
     {
-      title: "Total Revenue",
+      title: "Total Product",
       icon: (props) => (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -33,11 +33,11 @@ const DashboardPage = () => {
           <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
         </svg>
       ),
-      value: "$45,231.89",
-      description: "+20.1% from last month",
+      value: "20",
+      description: "Total number of product!",
     },
     {
-      title: "Subscriptions",
+      title: "Stores",
       icon: (props) => (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -54,11 +54,11 @@ const DashboardPage = () => {
           <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
       ),
-      value: "+2350",
-      description: "+180.1% from last month",
+      value: "10",
+      description: "Number of Stores!",
     },
     {
-      title: "Sales",
+      title: "Customers",
       icon: (props) => (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -74,11 +74,11 @@ const DashboardPage = () => {
           <path d="M2 10h20" />
         </svg>
       ),
-      value: "+12,234",
+      value: "05",
       description: "+19% from last month",
     },
     {
-      title: "Active Now",
+      title: "Active User",
       icon: (props) => (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -93,13 +93,13 @@ const DashboardPage = () => {
           <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
         </svg>
       ),
-      value: "+573",
+      value: "73",
       description: "+201 since last hour",
     },
   ];
 
   return (
-    <div className="h-screen space-y-4 py-8 ">
+    <div className="h-screen space-y-4  ">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
@@ -125,11 +125,10 @@ const DashboardPage = () => {
         </Card>
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Recent Sales</CardTitle>
+            <CardTitle>Recent Store</CardTitle>
             <CardContent>
-              <RecentSales />
+              <RecentStores />
             </CardContent>
-            
           </CardHeader>
         </Card>
       </div>

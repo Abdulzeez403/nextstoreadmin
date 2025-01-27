@@ -37,7 +37,7 @@ export default function ViewProductPage({
       <div className="flex justify-between items-center">
         <Breadcrumb
           items={[
-            { label: "Products", href: "/products" },
+            { label: "Products", href: "/admin/products" },
             { label: product.name, href: `/products/view/${params.id}` },
           ]}
         />
@@ -79,7 +79,6 @@ export default function ViewProductPage({
           <p className="text-gray-500 text-ms">{product.description}</p>
         </div>
       </div>
-
       <Drawer width="100" isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <UpdateProductForm
           selectedProductId={params?.id}
