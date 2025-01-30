@@ -9,6 +9,7 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        // Send login request to the backend
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
           {
@@ -21,28 +22,34 @@ export const authOptions = {
         const user = await response.json();
         console.log(user, "the user");
 
+        // If the response is OK, return the user and token
         if (response.ok) {
           return {
-            id: user?.id,
-            email: user?.email,
-            name: user?.name,
-            // token: user?.token,
+            id: user?.user?.id,
+            email: user?.user?.email,
+            name: user?.user?.name,
+            role: user?.user?.role,
+            isAdmin: user?.user?.isAdmin,
+            token: user?.user?.token, // Attach token here
           };
         }
 
+        // If the login fails, throw an error
         throw new Error(user.error || "Invalid credentials");
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: any; user?: any }) {
+    // Store the JWT token in the JWT callback
+    async jwt({ token, user }) {
       if (user) {
-        token.accessToken = user.token;
+        token.accessToken = user.token; // Store token in JWT token object
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
-      session.accessToken = token.accessToken;
+    // Attach the token to the session callback
+    async session({ session, token }) {
+      session.accessToken = token.accessToken; // Add accessToken to the session
       return session;
     },
   },
